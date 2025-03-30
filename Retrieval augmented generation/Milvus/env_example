@@ -1,0 +1,13 @@
+# WATSONX configuration
+WATSONX_API_KEY=
+WATSONX_PROJECT_ID=
+WATSONX_URL=
+
+# WATSONX DISCOVERY configuration
+ELASTIC_URL= 
+ELASTIC_USER= 
+ELASTIC_PASSWORD= 
+
+# Milvus configuration
+MILVUS_HOST = "localhost"
+MILVUS_PORT = "19530"

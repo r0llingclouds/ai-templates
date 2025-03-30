@@ -1,0 +1,120 @@
+{
+  "scrape_time": "2025-03-19 21:35:28",
+  "total_urls": 16,
+  "successful_scrapes": 16,
+  "failed_scrapes": 0,
+  "results": [
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/base.html",
+      "category": "base",
+      "filename": "base.md",
+      "success": true,
+      "file_path": "scraped_docs/base/base.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/core_api.html",
+      "category": "connection",
+      "filename": "core_api.md",
+      "success": true,
+      "file_path": "scraped_docs/connection/core_api.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_embeddings.html",
+      "category": "foundation_models",
+      "filename": "fm_embeddings.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_embeddings.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_model_inference.html",
+      "category": "foundation_models",
+      "filename": "fm_model_inference.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_model_inference.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_ts_model_inference.html",
+      "category": "foundation_models",
+      "filename": "fm_ts_model_inference.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_ts_model_inference.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_model.html",
+      "category": "foundation_models",
+      "filename": "fm_model.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_model.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_deployments.html",
+      "category": "foundation_models",
+      "filename": "fm_deployments.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_deployments.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/prompt_template_manager.html",
+      "category": "foundation_models",
+      "filename": "prompt_template_manager.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/prompt_template_manager.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_helpers.html",
+      "category": "foundation_models",
+      "filename": "fm_helpers.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_helpers.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_text_extraction.html",
+      "category": "foundation_models",
+      "filename": "fm_text_extraction.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_text_extraction.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_schema.html",
+      "category": "foundation_models",
+      "filename": "fm_schema.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_schema.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_rerank.html",
+      "category": "foundation_models",
+      "filename": "fm_rerank.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/fm_rerank.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/rate_limit.html",
+      "category": "foundation_models",
+      "filename": "rate_limit.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models/rate_limit.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_extensions_langchain.html",
+      "category": "foundation_models_extensions",
+      "filename": "fm_extensions_langchain.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models_extensions/fm_extensions_langchain.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_extensions_llamaindex.html",
+      "category": "foundation_models_extensions",
+      "filename": "fm_extensions_llamaindex.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models_extensions/fm_extensions_llamaindex.md"
+    },
+    {
+      "url": "https://ibm.github.io/watsonx-ai-python-sdk/fm_extensions_rag.html",
+      "category": "foundation_models_extensions",
+      "filename": "fm_extensions_rag.md",
+      "success": true,
+      "file_path": "scraped_docs/foundation_models_extensions/fm_extensions_rag.md"
+    }
+  ]
+}
