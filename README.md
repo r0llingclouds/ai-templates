@@ -1,6 +1,6 @@
 # AI Templates Repository
 
-This repository contains a collection of code templates, snippets, and SDK docs for AI projects. It is code I created during my previous projects and has some reusability.
+This repository contains a collection of code templates, snippets, and SDK docs for AI projects. It is code I create during my projects and has some reusability.
 
 ## Overview
 
