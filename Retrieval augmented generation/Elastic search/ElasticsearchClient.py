@@ -164,11 +164,50 @@ class ElasticsearchClient(metaclass=Singleton):
             self.logger.error(f"Dense search failed: {str(e)}")
             raise
 
-    def sparse_search(self, index_name, query_text, limit=5):
-        """Perform a sparse text search using BM25 on the text field."""
-        query = {"match": {"text": query_text}}
+    def sparse_search(self, index_name, query_text, limit=5, fuzziness=None):
+        """
+        Perform a sparse vector search using the query text with optional fuzzy matching.
+
+        Args:
+            index_name (str): Name of the index to search.
+            query_text (str): Text query for sparse search.
+            limit (int, optional): Maximum number of results. Defaults to 5.
+            fuzziness (str or int, optional): Fuzziness parameter for fuzzy matching.
+                Can be 'AUTO' or an integer (e.g., 1, 2). Defaults to None (no fuzziness).
+
+        Returns:
+            list: List of text strings from the top search results.
+
+        Raises:
+            ValueError: If fuzziness is provided but is neither 'AUTO' nor an integer.
+            Exception: If the Elasticsearch search operation fails.
+        """
+        # Validate the fuzziness parameter
+        if fuzziness is not None and fuzziness != "AUTO" and not isinstance(fuzziness, int):
+            raise ValueError("Fuzziness must be None, 'AUTO', or an integer.")
+
+        # Construct the Elasticsearch search query
+        search_body = {
+            "query": {
+                "match": {
+                    "text": {
+                        "query": query_text
+                    }
+                }
+            },
+            "size": limit
+        }
+
+        # Add fuzziness to the query if specified
+        if fuzziness is not None:
+            search_body["query"]["match"]["text"]["fuzziness"] = fuzziness
+            self.logger.debug(f"Performing sparse search with fuzziness: {fuzziness}")
+        else:
+            self.logger.debug("Performing sparse search without fuzziness")
+
+        # Execute the search and process results
         try:
-            results = self.client.search(index=index_name, body={"query": query, "size": limit})
+            results = self.client.search(index=index_name, body=search_body)
             hits = results['hits']['hits']
             return [hit['_source']['text'] for hit in hits]
         except Exception as e:
