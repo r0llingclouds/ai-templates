@@ -1,4 +1,5 @@
 # %%
+# THIS IS THE PYTHON VERSION OF THE NOTEBOOK FOR USING WITH LLMS
 # RAG template for watsonx discovery (Elasticsearch)
 # It provices a complete end-to-end example of how to use watsonx discovery to answer questions
 # Using watsonx.ai for foundation models and embeddings
