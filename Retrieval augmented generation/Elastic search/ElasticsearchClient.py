@@ -5,6 +5,9 @@ from aeat_code_rag_backend.env import LogConfig, ElasticsearchConfig, Embeddings
 from aeat_code_rag_backend.connectors.Singleton import Singleton
 from aeat_code_rag_backend.connectors.EmbeddingsClient import EmbeddingClient
 
+
+
+
 class ElasticsearchClient(metaclass=Singleton):
     """
     ElasticsearchClient is a singleton class that provides a client for Elasticsearch.
@@ -172,86 +175,63 @@ class ElasticsearchClient(metaclass=Singleton):
             self.logger.error(f"Sparse search failed: {str(e)}")
             raise
 
-    def hybrid_search(self, index_name, query_text, limit=5, ranker_type="weighted", **kwargs):
-        """Perform a hybrid search combining dense and sparse searches."""
+    def hybrid_search(self, index_name, query_text, limit=5, **kwargs):
+        """
+        Perform a hybrid search combining dense and sparse vector searches using built-in RRF.
+
+        Args:
+            index_name (str): Name of the index to search.
+            query_text (str): Text query for generating dense embedding and sparse search.
+            limit (int, optional): Maximum number of results. Defaults to 5.
+            **kwargs: Additional parameters for tuning the search:
+                - rank_constant (int, optional): RRF rank constant. Defaults to 60.
+                - window_size (int, optional): RRF window size. Defaults to 100.
+                - num_candidates (int, optional): Number of candidates for KNN search. Defaults to 100.
+
+        Returns:
+            list: List of text strings from the top search results.
+        """
+        self.logger.debug("Using built-in RRF for hybrid search")
+
+        # Generate dense query vector
         query_vector = self.embeddings.get_dense_embeddings(query_text)[0]
-        if ranker_type.lower() == "weighted":
-            sparse_weight = kwargs.get("sparse_weight", 0.3)
-            dense_weight = kwargs.get("dense_weight", 0.7)
-            query = {
-                "function_score": {
-                    "query": {"match_all": {}},
-                    "functions": [
-                        {
-                            "script_score": {
-                                "script": {
-                                    "source": "cosineSimilarity(params.query_vector, 'dense_vector') + 1.0",
-                                    "params": {"query_vector": query_vector}
-                                }
-                            },
-                            "weight": dense_weight
-                        },
-                        {
-                            "filter": {"match": {"text": query_text}},
-                            "weight": sparse_weight
-                        }
-                    ],
-                    "score_mode": "sum",
-                    "boost_mode": "sum"
-                }
-            }
-            try:
-                results = self.client.search(index=index_name, body={"query": query, "size": limit})
-                hits = results['hits']['hits']
-                return [hit['_source']['text'] for hit in hits]
-            except Exception as e:
-                self.logger.error(f"Hybrid search (weighted) failed: {str(e)}")
-                raise
-        elif ranker_type.lower() == "rrf":
-            k = kwargs.get("k", 60)
-            K = 100  # Retrieve more results to ensure RRF accuracy
-            try:
-                # Dense search
-                dense_results = self.client.search(
-                    index=index_name,
-                    body={
-                        "query": {
-                            "script_score": {
-                                "query": {"match_all": {}},
-                                "script": {
-                                    "source": "cosineSimilarity(params.query_vector, 'dense_vector') + 1.0",
-                                    "params": {"query_vector": query_vector}
-                                }
-                            }
-                        },
-                        "size": K
+
+        # Set parameters for built-in RRF and KNN
+        rank_constant = kwargs.get("rank_constant", 60)
+        window_size = kwargs.get("window_size", 100)
+        num_candidates = kwargs.get("num_candidates", 100)
+
+        # Construct the hybrid search query with fuzzy matching
+        search_body = {
+            "query": {
+                "match": {
+                    "text": {
+                        "query": query_text,
+                        "fuzziness": "AUTO",  # Enable fuzzy matching
+                        "boost": 1
                     }
-                )['hits']['hits']
-                # Sparse search
-                sparse_results = self.client.search(
-                    index=index_name,
-                    body={"query": {"match": {"text": query_text}}, "size": K}
-                )['hits']['hits']
-                # Assign ranks
-                dense_ranks = {hit['_id']: i + 1 for i, hit in enumerate(dense_results)}
-                sparse_ranks = {hit['_id']: i + 1 for i, hit in enumerate(sparse_results)}
-                all_ids = set(dense_ranks.keys()) | set(sparse_ranks.keys())
-                # Compute RRF scores
-                rrf_scores = {}
-                for id in all_ids:
-                    score = 0.0
-                    if id in dense_ranks:
-                        score += 1.0 / (k + dense_ranks[id])
-                    if id in sparse_ranks:
-                        score += 1.0 / (k + sparse_ranks[id])
-                    rrf_scores[id] = score
-                # Sort by score and select top results
-                sorted_ids = sorted(all_ids, key=lambda x: rrf_scores[x], reverse=True)[:limit]
-                all_hits = {hit['_id']: hit for hit in dense_results + sparse_results}
-                top_hits = [all_hits[id] for id in sorted_ids if id in all_hits]
-                return [hit['_source']['text'] for hit in top_hits]
-            except Exception as e:
-                self.logger.error(f"Hybrid search (rrf) failed: {str(e)}")
-                raise
-        else:
-            raise ValueError(f"Unknown ranker type: {ranker_type}")
+                }
+            },
+            "knn": {
+                "field": "dense_vector",
+                "query_vector": query_vector,
+                "k": limit,
+                "num_candidates": num_candidates
+            },
+            "rank": {
+                "rrf": {
+                    "rank_constant": rank_constant,
+                    "window_size": window_size
+                }
+            },
+            "size": limit
+        }
+
+        # Execute the search
+        try:
+            results = self.client.search(index=index_name, body=search_body)
+            hits = results['hits']['hits']
+            return [hit['_source']['text'] for hit in hits]
+        except Exception as e:
+            self.logger.error(f"Built-in RRF hybrid search failed: {str(e)}")
+            raise
