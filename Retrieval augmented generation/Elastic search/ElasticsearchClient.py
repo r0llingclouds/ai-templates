@@ -108,20 +108,53 @@ class ElasticsearchClient(metaclass=Singleton):
         else:
             self.logger.warning(f"Index {index_name} does not exist")
 
-    def dense_search(self, index_name, query_text, limit=5):
-        """Perform a dense vector search using cosine similarity."""
+    def dense_search(self, index_name, query_text, limit=5, search_type="exact", **kwargs):
+        """
+        Perform a dense vector search using the query text.
+
+        Args:
+            index_name (str): Name of the index to search.
+            query_text (str): Text query to generate dense embedding.
+            limit (int, optional): Maximum number of results. Defaults to 5.
+            search_type (str, optional): Type of search to perform. Options are:
+                - "exact": Uses script_score for exact cosine similarity (default).
+                - "knn": Uses approximate nearest neighbor search for faster performance.
+            **kwargs: Additional parameters for KNN search, such as "num_candidates" (default=100).
+
+        Returns:
+            list: List of text strings from the top search results.
+        """
+        # Generate the query vector from the input text
         query_vector = self.embeddings.get_dense_embeddings(query_text)[0]
-        query = {
-            "script_score": {
-                "query": {"match_all": {}},
-                "script": {
-                    "source": "cosineSimilarity(params.query_vector, 'dense_vector') + 1.0",
-                    "params": {"query_vector": query_vector}
+
+        # Choose search method based on search_type
+        if search_type == "exact":
+            self.logger.debug("Performing exact dense search with script_score")
+            query = {
+                "script_score": {
+                    "query": {"match_all": {}},
+                    "script": {
+                        "source": "cosineSimilarity(params.query_vector, 'dense_vector') + 1.0",
+                        "params": {"query_vector": query_vector}
+                    }
                 }
             }
-        }
+            search_body = {"query": query, "size": limit}
+        elif search_type == "knn":
+            self.logger.debug("Performing approximate dense search with KNN")
+            knn_params = {
+                "field": "dense_vector",
+                "query_vector": query_vector,
+                "k": limit,
+                "num_candidates": kwargs.get("num_candidates", 100)
+            }
+            search_body = {"knn": knn_params}
+        else:
+            raise ValueError(f"Unknown search_type: {search_type}")
+
+        # Execute the search and return results
         try:
-            results = self.client.search(index=index_name, body={"query": query, "size": limit})
+            results = self.client.search(index=index_name, body=search_body)
             hits = results['hits']['hits']
             return [hit['_source']['text'] for hit in hits]
         except Exception as e:
