@@ -6,24 +6,11 @@ from pymilvus import Function, FunctionType
 from pymilvus import DataType
 from pymilvus.model.dense import SentenceTransformerEmbeddingFunction
 
-from .Logger import Logger
-from cv_agent.env import LogConfig
-from .Singleton import Singleton
+from Logger import Logger
+from Singleton import Singleton
 
 
 import os
-
-class MilvusConfig:
-    # uri = config_env.get("MILVUS_URI")
-    # user = config_env.get("MILVUS_USER")
-    # password = config_env.get("MILVUS_PASSWORD")
-    # db_name = config_env.get("MILVUS_DB_NAME", "default")
-    uri = os.getenv("MILVUS_URI")
-    user = os.getenv("MILVUS_USER")
-    password = os.getenv("MILVUS_PASSWORD")
-    db_name = os.getenv("MILVUS_DB_NAME")
-    server_name = os.getenv("MILVUS_SERVER_NAME")
-    server_pem_path = os.getenv("MILVUS_SERVER_PEM_PATH")
 
 class MilvusClient(metaclass=Singleton):
     """
@@ -31,16 +18,24 @@ class MilvusClient(metaclass=Singleton):
     It provides methods to create collections, insert data, and perform searches.
     """
 
-    def __init__(self, config: MilvusConfig, embeddingsconfig: EmbeddingsConfig):
+    def __init__(self):
 
-        self.logger = Logger('milvus_logger', LogConfig.misc_level).logger
+        self.logger = Logger('milvus_logger', os.getenv("LOG_MISC", "DEBUG")).logger
 
+        # Fetch config directly from environment variables
+        uri = os.getenv("MILVUS_URI")
+        user = os.getenv("MILVUS_USER")
+        password = os.getenv("MILVUS_PASSWORD")
+        server_name = os.getenv("MILVUS_SERVER_NAME")
+        server_pem_path = os.getenv("MILVUS_SERVER_PEM_PATH")
+
+        # Current implementation is for remote Milvus server
         self.client = MC(
-            uri=config.uri,
-            token=f"{config.user}:{config.password}",
-            server_name=config.server_name,
+            uri=uri,
+            token=f"{user}:{password}",
+            server_name=server_name,
             secure=True,
-            server_pem_path=config.server_pem_path,
+            server_pem_path=server_pem_path,
         )
 
         self.logger.debug("Milvus Client successfully initialized.")

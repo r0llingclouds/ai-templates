@@ -1,51 +1,39 @@
 from ibm_watsonx_ai.foundation_models import get_model_specs
 from ibm_watsonx_ai.foundation_models import ModelInference
 from ibm_watsonx_ai import APIClient, Credentials
-
+from Singleton import Singleton
+from Logger import Logger
 import os
 
-class WatsonxConfig:
-    apikey = os.getenv("WATSONX_AI_APIKEY")
-    url = os.getenv("WATSONX_AI_HOST")
+class WatsonxClient(metaclass=Singleton):
+    def __init__(self):
+        self.logger = Logger('watsonx_logger', os.getenv("LOG_MISC", "DEBUG")).logger
 
-    # provide one of these
-    project_id = os.getenv("WATSONX_AI_PROJECT_ID")
-    space_id = os.getenv("WATSONX_AI_SPACE_ID")
+        # Read environment variables directly
+        self.wx_cloud_url = os.getenv("WATSONX_AI_HOST")
+        self.wx_apikey = os.getenv("WATSONX_AI_APIKEY")
+        self.project_id = os.getenv("WATSONX_AI_PROJECT_ID")
+        self.space_id = os.getenv("WATSONX_AI_SPACE_ID")
+        self.deployment_id = os.getenv("WATSONX_AI_DEPLOYMENT_ID")
 
-    deployment_id = os.getenv("WATSONX_AI_DEPLOYMENT_ID")
+        # Check required host and apikey env vars
+        if not self.wx_cloud_url or not self.wx_apikey:
+            raise ValueError("WATSONX_AI_HOST and WATSONX_AI_APIKEY environment variables must be set.")
 
-class WatsonxAPIClient(metaclass=Singleton):
-    def __init__(self, watsonxconfig: WatsonxConfig):
-        self.wx_cloud_url = watsonxconfig.url
-        self.wx_apikey = watsonxconfig.apikey
-
+        # Create credentials and API client directly
         self.credentials = Credentials(
             url=self.wx_cloud_url,
             api_key=self.wx_apikey
         )
-
         self.client = APIClient(self.credentials)
 
-
-class WatsonxClient(metaclass=Singleton):
-    def __init__(self, watsonxconfig: WatsonxConfig):
-
-        self.logger = Logger('watsonx_logger', LogConfig.misc_level).logger
-
-        self.wx_cloud_url = watsonxconfig.url
-        self.wx_apikey = watsonxconfig.apikey
-
-        self.client = WatsonxAPIClient(watsonxconfig).client
-
-        # one of these two is required
-        self.project_id = watsonxconfig.project_id
-        self.space_id = watsonxconfig.space_id
-
-        self.deployment_id = watsonxconfig.deployment_id
+        # Check required deployment ID env var
+        if not self.deployment_id:
+             raise ValueError("WATSONX_AI_DEPLOYMENT_ID environment variable must be set.")
 
         model_data = {
             "deployment_id": self.deployment_id,
-            "api_client": self.client,
+            "api_client": self.client, # Use the client created within this class
             "validate": False
         }
         if self.project_id:
@@ -53,15 +41,14 @@ class WatsonxClient(metaclass=Singleton):
         elif self.space_id:
             model_data['space_id'] = self.space_id
         else:
-            raise Exception(
-                'Project ID or Space ID required for Watsonx AI model inference')
+            raise ValueError(
+                'Either WATSONX_AI_PROJECT_ID or WATSONX_AI_SPACE_ID environment variable must be set for Watsonx AI model inference')
 
         self.model = ModelInference(**model_data)
         self.logger.debug("WatsonX Client successfully initialized.")
 
     def text_generation(self, prompt_query: str = None, params: dict = None, label: str = ""):
-        self.logger.debug(
-            f"Called text generation")
+        self.logger.debug(f"Called text generation")
 
         response = None
         tries = 3
@@ -78,8 +65,7 @@ class WatsonxClient(metaclass=Singleton):
         return response
 
     def text_generation_stream(self, prompt_query: str = None, params: dict = None):
-        self.logger.debug(
-            f"Called text stream generation")
+        self.logger.debug(f"Called text stream generation")
         response = None
         tries = 3
         # retry in case WX dies

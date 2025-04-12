@@ -18,28 +18,13 @@ python main.py alex_gdev.md # OR without argument.
 
 """
 
-# adapt depending on your project structure
-project_root = os.path.abspath(os.path.join(os.getcwd(), '../..'))
-if project_root not in sys.path:
-    sys.path.append(project_root)
-
 dotenv.load_dotenv()
 
-
 # Initialize the config objects (these will load from .env)
-from cv_agent.env import MilvusConfig, EmbeddingsConfig
-milvus_config = MilvusConfig()
-embeddings_config = EmbeddingsConfig()
+from MilvusClient import MilvusClient
+milvus_client = MilvusClient()
 
-# Create MilvusClient instance
-from cv_agent.connectors.MilvusClient import MilvusClient
-milvus_client = MilvusClient(config=milvus_config, embeddingsconfig=embeddings_config)
-
-
-collection_name = os.getenv("MILVUS_COLLECTION", "job_recommendations")
-print(milvus_client.get_collection_stats(collection_name))
-
-
+collection_name = os.getenv("MILVUS_COLLECTION")
 TOP_K = int(os.getenv("TOP_K", 3))
 OUTPUT_FIELDS = ["job_id", "title", "company_name", "required_skills"]
 
