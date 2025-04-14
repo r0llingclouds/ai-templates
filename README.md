@@ -1,5 +1,7 @@
 # AI Templates Repository
 
+![AI Engineering](logo.png)
+
 This repository contains a collection of code templates, snippets, and SDK docs for AI projects. It is code I create during my projects and has some reusability.
 
 ## Overview
