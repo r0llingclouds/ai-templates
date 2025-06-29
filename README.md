@@ -144,6 +144,14 @@ These templates can be used for:
 - Developing travel recommendation systems
 - Implementing question-answering systems over custom data
 
+## Some interesting links
+
+- https://github.com/IBM/watsonx-developer-hub
+- https://github.com/i-am-bee/beeai-framework
+- https://github.com/IBM/watsonx-ai-samples
+- https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit
+
+
 ## Contributing
 
 Feel free to add new templates or improve existing ones. Create a pull request with your changes or additions.
