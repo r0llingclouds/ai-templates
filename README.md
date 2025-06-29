@@ -150,7 +150,8 @@ These templates can be used for:
 - https://github.com/i-am-bee/beeai-framework
 - https://github.com/IBM/watsonx-ai-samples
 - https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit
-
+- https://suedbroecker.net/archive/
+- https://heidloff.net
 
 ## Contributing
 
