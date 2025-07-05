@@ -152,6 +152,7 @@ These templates can be used for:
 - https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit
 - https://suedbroecker.net/archive/
 - https://heidloff.net
+- https://github.com/IBM/watson-openscale-samples/tree/main
 
 ## Contributing
 
